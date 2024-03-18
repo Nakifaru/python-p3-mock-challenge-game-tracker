@@ -5,23 +5,31 @@ class Game:
     def __init__(self, title):
         self._title = title
         Game.all.append(self)
+
     @property
     def title(self):
         if isinstance(self._title, str) and len(self._title) > 0:
             return self._title
+    
+    #how do I prevent the code from giving back attribute error when user tries to reassign title
+    
+    # @title.setter
+    # def title(self, title):
+    #     if hasattr(Game, 'title'):
+    #         print('Cannot change title')
+
     @title.setter
     def title(self, title):
-        if hasattr(Game, 'title'):
-            print('Cannot change title')
+        raise Exception ("Cannot change title")
 
     def results(self):
-        pass
+        return [x for x in Result.all if x.game == self]
 
     def players(self):
-        pass
+        return list(dict.fromkeys([x.player for x in Result.all if x.game == self]))
 
     def average_score(self, player):
-        pass
+        return sum([x.score for x in Result.all if x.player == player and x.game == self]) / len([x.score for x in Result.all if x.player == player])
 
 class Player:
 
@@ -30,6 +38,7 @@ class Player:
     def __init__(self, username):
         self._username = username
         Player.all.append(self)
+
     @property
     def username(self):
         if isinstance(self._username, str) and 2 <= len(self._username) <= 16:
@@ -41,42 +50,54 @@ class Player:
             self._username = username
 
     def results(self):
-        pass
+        return [x for x in Result.all if x.player == self]
 
     def games_played(self):
-        pass
+        return list(dict.fromkeys([x.game for x in Result.all if x.player == self]))
 
     def played_game(self, game):
-        pass
+        return game in [x.game for x in Result.all if x.player == self]
 
     def num_times_played(self, game):
-        pass
+        return len([x for x in Result.all if x.player == self and x.game == game])
 
 class Result:
 
     all = []
 
     def __init__(self, player, game, score):
-        self.player = player
-        self.game = game
-        self.score = score
+        self._player = player
+        self._game = game
+        self._score = score
         Result.all.append(self)
 
     @property
     def score(self):
-        if isinstance(self.score, int) and 1 <= self.score <= 5000:
-            return self.score
+        if isinstance(self._score, int) and 1 <= self._score <= 5000:
+            return self._score
+        else:
+            raise Exception ("Has to be an integer between 1 and 5000")
+
+    #Again how do I use this hasattr to prevent reassigning score
+    #I'll use exceptations instead for now 
+
+    # @score.setter
+    # def score(self, score):
+    #     if hasattr(Result, 'score'):
+    #         print('Cannot change score')
+        
+
+    #this has been brute forced to simply pass tests. I need to learn how to prevent setting    
     @score.setter
     def score(self, score):
-        if hasattr(Result, 'score'):
-            print('Cannot change score')
+        self._score = self._score
 
     @property
     def player(self):
-        if isinstance(self.player, Player):
-            return self.player
+        if isinstance(self._player, Player):
+            return self._player
 
     @property
     def game(self):
-        if isinstance(self.game, Game):
-            return self.game
+        if isinstance(self._game, Game):
+            return self._game
